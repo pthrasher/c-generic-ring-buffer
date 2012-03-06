@@ -5,7 +5,7 @@
 #include "ringbuffer.h"
 
 int main() {
-  defineBufferOfType(int,myBuffer);
+  defineBufferOfTypeAsName(int,myBuffer);
 
   bufferInit(myBuffer,1024,int);
 

@@ -1,16 +1,17 @@
 /* Philip Thrasher's Crazy Awesome Ring Buffer Macros!
  *
- * These macros are what has kept pthrash (slightly) sane while learning C. If
- * you don't like macros, I don't care. If you think I'm no good cuz I made
- * these, I don't care. I like them, and they made my life easier, so fuck off.
- * They're very simple, and easy to understand.
+ * Below you will find some naughty macros for easy owning and manipulating
+ * generic ring buffers. Yes, they are slightly evil in readability, but they
+ * are really fast, and they work great.
  *
  * Example usage:
  *
  * #include <stdio.h>
  *
  * int main() {
- *   struct myBuffer = bufferOfType(int);
+ *   // This gets defined in the current scope
+ *   defineBufferOfTypeAsName(int, myBuffer);
+ *
  *   bufferInit(myBuffer, 1024, int);
  *
  *   bufferWrite(myBuffer, 37);
@@ -32,7 +33,7 @@
 #ifndef _ringbuffer_h
 #define _ringbuffer_h
 
-#define defineBufferOfType(T, NAME) \
+#define defineBufferOfTypeAsName(T, NAME) \
   struct { \
     int size; \
     int start; \
