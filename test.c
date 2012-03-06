@@ -1,3 +1,8 @@
+/* TODO:
+ *   1. Add more tests.
+ *   2. Add comments.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
