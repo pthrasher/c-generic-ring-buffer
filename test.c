@@ -9,20 +9,38 @@
 #include <assert.h>
 #include "ringbuffer.h"
 
-int main() {
-  defineBufferOfTypeAsName(int,myBuffer);
+ringBuffer_typedef(int, intBuffer);
 
-  bufferInit(myBuffer,1024,int);
-
-  bufferWrite(myBuffer,37);
-  bufferWrite(myBuffer,72);
-
+void testAsPointer(intBuffer* myBuffer_ptr) {
   int first;
-  bufferRead(myBuffer,first);
+  bufferRead(myBuffer_ptr,first);
   assert(first == 37);
 
   int second;
-  bufferRead(myBuffer,second);
+  bufferRead(myBuffer_ptr,second);
+  assert(second == 72);
+}
+
+int main() {
+  // Declare vars.
+  intBuffer myBuffer;
+  intBuffer* myBuffer_ptr;
+
+  bufferInit(myBuffer,1024,int);
+
+  // We must have the pointer. All of the macros deal with the pointer. (except
+  // for init.
+  myBuffer_ptr = &myBuffer;
+
+  bufferWrite(myBuffer_ptr,37);
+  bufferWrite(myBuffer_ptr,72);
+
+  int first;
+  bufferRead(myBuffer_ptr,first);
+  assert(first == 37);
+
+  int second;
+  bufferRead(myBuffer_ptr,second);
   assert(second == 72);
 
   printf("All tests passed.\n");

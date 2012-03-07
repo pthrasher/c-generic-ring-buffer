@@ -8,22 +8,33 @@
  *
  * #include <stdio.h>
  *
+ * // So we can use this in any method, this gives us a typedef
+ * // named 'intBuffer'.
+ * ringBuffer_typedef(int, intBuffer);
+ *
  * int main() {
- *   // This gets defined in the current scope
- *   defineBufferOfTypeAsName(int, myBuffer);
+ *   // Declare vars.
+ *   intBuffer myBuffer;
  *
- *   bufferInit(myBuffer, 1024, int);
+ *   bufferInit(myBuffer,1024,int);
  *
- *   bufferWrite(myBuffer, 37);
- *   bufferWrite(myBuffer, 72);
+ *   // We must have the pointer. All of the macros deal with the pointer.
+ *   // (except for init.)
+ *   intBuffer* myBuffer_ptr;
+ *   myBuffer_ptr = &myBuffer;
  *
+ *   // Write two values.
+ *   bufferWrite(myBuffer_ptr,37);
+ *   bufferWrite(myBuffer_ptr,72);
+ *
+ *   // Read a value into a local variable.
  *   int first;
- *   bufferRead(myBuffer, first);
- *   printf("First item: %d", first);
+ *   bufferRead(myBuffer_ptr,first);
+ *   assert(first == 37); // true
  *
  *   int second;
- *   bufferRead(myBuffer, second);
- *   printf("Second item: %d", second);
+ *   bufferRead(myBuffer_ptr,second);
+ *   assert(second == 72); // true
  *
  *   return 0;
  * }
@@ -33,8 +44,8 @@
 #ifndef _ringbuffer_h
 #define _ringbuffer_h
 
-#define defineBufferOfTypeAsName(T, NAME) \
-  struct { \
+#define ringBuffer_typedef(T, NAME) \
+  typedef struct { \
     int size; \
     int start; \
     int end; \
@@ -48,22 +59,22 @@
   BUF.elems = (T*)calloc(BUF.size, sizeof(T))
 
 
-#define bufferDestroy(BUF) free(BUF.elems)
-#define nextStartIndex(BUF) ((BUF.start + 1) % BUF.size)
-#define nextEndIndex(BUF) ((BUF.end + 1) % BUF.size)
-#define isBufferEmpty(BUF) (BUF.end == BUF.start)
-#define isBufferFull(BUF) (nextEndIndex(BUF) == BUF.start)
+#define bufferDestroy(BUF) free(BUF->elems)
+#define nextStartIndex(BUF) ((BUF->start + 1) % BUF->size)
+#define nextEndIndex(BUF) ((BUF->end + 1) % BUF->size)
+#define isBufferEmpty(BUF) (BUF->end == BUF->start)
+#define isBufferFull(BUF) (nextEndIndex(BUF) == BUF->start)
 
 #define bufferWrite(BUF, ELEM) \
-  BUF.elems[BUF.end] = ELEM; \
-  BUF.end = (BUF.end + 1) % BUF.size; \
+  BUF->elems[BUF->end] = ELEM; \
+  BUF->end = (BUF->end + 1) % BUF->size; \
   if (isBufferEmpty(BUF)) { \
-    BUF.start = nextStartIndex(BUF); \
+    BUF->start = nextStartIndex(BUF); \
   }
 
 #define bufferRead(BUF, ELEM) \
-    ELEM = BUF.elems[BUF.start]; \
-    BUF.start = nextStartIndex(BUF);
+    ELEM = BUF->elems[BUF->start]; \
+    BUF->start = nextStartIndex(BUF);
 
 #endif
 
