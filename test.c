@@ -11,14 +11,20 @@
 
 ringBuffer_typedef(int, intBuffer);
 
-void testAsPointer(intBuffer* myBuffer_ptr) {
+void passByReference(intBuffer* myBuffer_ptr) {
+
+  assert(isBufferEmpty(myBuffer_ptr));
+
+  bufferWrite(myBuffer_ptr,38);
+  bufferWrite(myBuffer_ptr,73);
+
   int first;
   bufferRead(myBuffer_ptr,first);
-  assert(first == 37);
+  assert(first == 38);
 
   int second;
   bufferRead(myBuffer_ptr,second);
-  assert(second == 72);
+  assert(second == 73);
 }
 
 int main() {
@@ -42,6 +48,8 @@ int main() {
   int second;
   bufferRead(myBuffer_ptr,second);
   assert(second == 72);
+
+  passByReference(myBuffer_ptr);
 
   printf("All tests passed.\n");
   return 0;
