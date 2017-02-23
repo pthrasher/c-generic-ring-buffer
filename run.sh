@@ -22,5 +22,5 @@
 
 
 make test >/dev/null &&
-./test &&
+./test;
 rm test;

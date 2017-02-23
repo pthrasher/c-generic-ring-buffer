@@ -77,21 +77,21 @@
   } NAME
 
 #define bufferInit(BUF, S, T) \
-  BUF.size = S+1; \
+  BUF.size = S; \
   BUF.start = 0; \
   BUF.end = 0; \
   BUF.elems = (T*)calloc(BUF.size, sizeof(T))
 
 
 #define bufferDestroy(BUF) free(BUF->elems)
-#define nextStartIndex(BUF) ((BUF->start + 1) % BUF->size)
-#define nextEndIndex(BUF) ((BUF->end + 1) % BUF->size)
+#define nextStartIndex(BUF) ((BUF->start + 1) % (BUF->size + 1))
+#define nextEndIndex(BUF) ((BUF->end + 1) % (BUF->size + 1))
 #define isBufferEmpty(BUF) (BUF->end == BUF->start)
 #define isBufferFull(BUF) (nextEndIndex(BUF) == BUF->start)
 
 #define bufferWrite(BUF, ELEM) \
   BUF->elems[BUF->end] = ELEM; \
-  BUF->end = (BUF->end + 1) % BUF->size; \
+  BUF->end = (BUF->end + 1) % (BUF->size + 1); \
   if (isBufferEmpty(BUF)) { \
     BUF->start = nextStartIndex(BUF); \
   }
