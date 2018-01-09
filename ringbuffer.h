@@ -80,7 +80,7 @@
   BUF.size = S; \
   BUF.start = 0; \
   BUF.end = 0; \
-  BUF.elems = (T*)calloc(BUF.size, sizeof(T))
+  BUF.elems = (T*)calloc(BUF.size + 1, sizeof(T))
 
 
 #define bufferDestroy(BUF) free(BUF->elems)
