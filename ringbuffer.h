@@ -72,6 +72,10 @@
 #define RINGBUFFER_USE_STATIC_MEMORY 0
 #endif
 
+#ifndef RINGBUFFER_AVOID_MODULO
+#define RINGBUFFER_AVOID_MODULO 0
+#endif
+
 
 #define ringBuffer_typedef(T, NAME) \
   typedef struct { \
@@ -102,14 +106,25 @@
 
 #endif
 
+  
+#if RINGBUFFER_AVOID_MODULO == 1
+  
+#define nextStartIndex(BUF) ((BUF->start != BUF->size) ? (BUF->start + 1) : 0)
+#define nextEndIndex(BUF) ((BUF->end != BUF->size) ? (BUF->end + 1) : 0)
+  
+#else
+  
 #define nextStartIndex(BUF) ((BUF->start + 1) % (BUF->size + 1))
 #define nextEndIndex(BUF) ((BUF->end + 1) % (BUF->size + 1))
+  
+#endif
+
 #define isBufferEmpty(BUF) (BUF->end == BUF->start)
 #define isBufferFull(BUF) (nextEndIndex(BUF) == BUF->start)
 
 #define bufferWrite(BUF, ELEM) \
   BUF->elems[BUF->end] = ELEM; \
-  BUF->end = (BUF->end + 1) % (BUF->size + 1); \
+  BUF->end = nextEndIndex(BUF); \
   if (isBufferEmpty(BUF)) { \
     BUF->start = nextStartIndex(BUF); \
   }
