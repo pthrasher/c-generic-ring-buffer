@@ -68,6 +68,11 @@
 #ifndef _ringbuffer_h
 #define _ringbuffer_h
 
+#ifndef RINGBUFFER_USE_STATIC_MEMORY
+#define RINGBUFFER_USE_STATIC_MEMORY 0
+#endif
+
+
 #define ringBuffer_typedef(T, NAME) \
   typedef struct { \
     int size; \
@@ -75,15 +80,28 @@
     int end; \
     T* elems; \
   } NAME
-
+  
+#if RINGBUFFER_USE_STATIC_MEMORY == 1
+#define bufferInit(BUF, S, T) \
+  { \
+    static T StaticBufMemory[S + 1];\
+    BUF.elems = StaticBufMemory; \
+  } \
+  BUF.size = S; \
+  BUF.start = 0; \
+  BUF.end = 0
+#else
+  
 #define bufferInit(BUF, S, T) \
   BUF.size = S; \
   BUF.start = 0; \
   BUF.end = 0; \
   BUF.elems = (T*)calloc(BUF.size + 1, sizeof(T))
 
-
 #define bufferDestroy(BUF) free(BUF->elems)
+
+#endif
+
 #define nextStartIndex(BUF) ((BUF->start + 1) % (BUF->size + 1))
 #define nextEndIndex(BUF) ((BUF->end + 1) % (BUF->size + 1))
 #define isBufferEmpty(BUF) (BUF->end == BUF->start)

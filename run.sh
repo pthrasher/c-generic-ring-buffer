@@ -20,7 +20,15 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+declare -a OPTIONSETS=("-DRINGBUFFER_USE_STATIC_MEMORY=0" "-DRINGBUFFER_USE_STATIC_MEMORY=1")
 
-make test >/dev/null &&
-./test;
-rm test;
+# get length of an array
+OPTIONSETS_LENGTH=${#OPTIONSETS[@]}
+
+for (( i=0; i<${OPTIONSETS_LENGTH}; i++ ));
+do
+  CFLAGS=${OPTIONSETS[$i]}
+  gcc test.c ${CFLAGS} -o test >/dev/null
+  ./test;
+  rm test;
+done
