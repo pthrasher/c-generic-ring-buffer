@@ -122,15 +122,23 @@
 #define isBufferEmpty(BUF) (BUF->end == BUF->start)
 #define isBufferFull(BUF) (nextEndIndex(BUF) == BUF->start)
 
-#define bufferWrite(BUF, ELEM) \
-  BUF->elems[BUF->end] = ELEM; \
+#define bufferWritePeek(BUF) BUF->elems[BUF->end]
+#define bufferWriteInc(BUF) \
   BUF->end = nextEndIndex(BUF); \
   if (isBufferEmpty(BUF)) { \
     BUF->start = nextStartIndex(BUF); \
   }
 
-#define bufferRead(BUF, ELEM) \
-    ELEM = BUF->elems[BUF->start]; \
-    BUF->start = nextStartIndex(BUF);
+#define bufferReadPeek(BUF) BUF->elems[BUF->start]
+#define bufferReadInc(BUF) \
+  BUF->start = nextStartIndex(BUF);
+  
+#define bufferWrite(BUF, ELEM) \
+  bufferWritePeek(BUF) = ELEM; \
+  bufferWriteInc(BUF)
 
+#define bufferRead(BUF, ELEM) \
+  ELEM = bufferReadPeek(BUF); \
+  bufferReadInc(BUF)
+  
 #endif

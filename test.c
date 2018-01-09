@@ -52,12 +52,20 @@ void passByReference(intBuffer* myBuffer_ptr) {
   assert(second == 73);
 
   bufferWrite(myBuffer_ptr,42);
-  bufferWrite(myBuffer_ptr,43);
+  
+  bufferWritePeek(myBuffer_ptr) = 17;
+  bufferWritePeek(myBuffer_ptr) = 43;
+  bufferWriteInc(myBuffer_ptr);
+  
   bufferWrite(myBuffer_ptr,44); // test wrap around -- this should overwrite 42
 
   int third;
-  bufferRead(myBuffer_ptr,third);
+  third = bufferReadPeek(myBuffer_ptr);
   assert(third == 43);
+  third = bufferReadPeek(myBuffer_ptr);
+  assert(third == 43);
+  
+  bufferReadInc(myBuffer_ptr);
 
   int fourth;
   bufferRead(myBuffer_ptr,fourth);
