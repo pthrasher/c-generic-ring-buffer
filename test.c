@@ -76,30 +76,26 @@ void passByReference(intBuffer* myBuffer_ptr) {
 int main() {
   // Declare vars.
   intBuffer myBuffer;
-  intBuffer* myBuffer_ptr;
 
   bufferInit(myBuffer,2,int);
 
-  // We must have the pointer. All of the macros deal with the pointer. (except
-  // for init.
-  myBuffer_ptr = &myBuffer;
 
-  assert(isBufferEmpty(myBuffer_ptr));
+  assert(isBufferEmpty(&myBuffer));
 
-  bufferWrite(myBuffer_ptr,37);
-  bufferWrite(myBuffer_ptr,72);
+  bufferWrite(&myBuffer,37);
+  bufferWrite(&myBuffer,72);
 
-  assert(!isBufferEmpty(myBuffer_ptr));
+  assert(!isBufferEmpty(&myBuffer));
 
   int first;
-  bufferRead(myBuffer_ptr,first);
+  bufferRead(&myBuffer,first);
   assert(first == 37);
 
   int second;
-  bufferRead(myBuffer_ptr,second);
+  bufferRead(&myBuffer,second);
   assert(second == 72);
 
-  passByReference(myBuffer_ptr);
+  passByReference(&myBuffer);
 
   printf("All tests passed.\n");
   return 0;

@@ -102,36 +102,36 @@
   BUF.end = 0; \
   BUF.elems = (T*)calloc(BUF.size + 1, sizeof(T))
 
-#define bufferDestroy(BUF) free(BUF->elems)
+#define bufferDestroy(BUF) free((BUF)->elems)
 
 #endif
 
   
 #if RINGBUFFER_AVOID_MODULO == 1
   
-#define nextStartIndex(BUF) ((BUF->start != BUF->size) ? (BUF->start + 1) : 0)
-#define nextEndIndex(BUF) ((BUF->end != BUF->size) ? (BUF->end + 1) : 0)
+#define nextStartIndex(BUF) (((BUF)->start != (BUF)->size) ? ((BUF)->start + 1) : 0)
+#define nextEndIndex(BUF) (((BUF)->end != (BUF)->size) ? ((BUF)->end + 1) : 0)
   
 #else
   
-#define nextStartIndex(BUF) ((BUF->start + 1) % (BUF->size + 1))
-#define nextEndIndex(BUF) ((BUF->end + 1) % (BUF->size + 1))
+#define nextStartIndex(BUF) (((BUF)->start + 1) % ((BUF)->size + 1))
+#define nextEndIndex(BUF) (((BUF)->end + 1) % ((BUF)->size + 1))
   
 #endif
 
-#define isBufferEmpty(BUF) (BUF->end == BUF->start)
-#define isBufferFull(BUF) (nextEndIndex(BUF) == BUF->start)
+#define isBufferEmpty(BUF) ((BUF)->end == (BUF)->start)
+#define isBufferFull(BUF) (nextEndIndex(BUF) == (BUF)->start)
 
-#define bufferWritePeek(BUF) BUF->elems[BUF->end]
+#define bufferWritePeek(BUF) (BUF)->elems[(BUF)->end]
 #define bufferWriteInc(BUF) \
-  BUF->end = nextEndIndex(BUF); \
+  (BUF)->end = nextEndIndex(BUF); \
   if (isBufferEmpty(BUF)) { \
-    BUF->start = nextStartIndex(BUF); \
+    (BUF)->start = nextStartIndex(BUF); \
   }
 
-#define bufferReadPeek(BUF) BUF->elems[BUF->start]
+#define bufferReadPeek(BUF) (BUF)->elems[(BUF)->start]
 #define bufferReadInc(BUF) \
-  BUF->start = nextStartIndex(BUF);
+  (BUF)->start = nextStartIndex(BUF);
   
 #define bufferWrite(BUF, ELEM) \
   bufferWritePeek(BUF) = ELEM; \
