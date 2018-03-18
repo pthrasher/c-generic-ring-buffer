@@ -76,7 +76,6 @@
 #define RINGBUFFER_AVOID_MODULO 0
 #endif
 
-
 #define ringBuffer_typedef(T, NAME) \
   typedef struct { \
     int size; \
@@ -91,9 +90,9 @@
     static T StaticBufMemory[S + 1];\
     BUF.elems = StaticBufMemory; \
   } \
-  BUF.size = S; \
-  BUF.start = 0; \
-  BUF.end = 0
+    BUF.size = S; \
+    BUF.start = 0; \
+    BUF.end = 0;
 #else
   
 #define bufferInit(BUF, S, T) \
@@ -123,22 +122,22 @@
 #define isBufferFull(BUF) (nextEndIndex(BUF) == (BUF)->start)
 
 #define bufferWritePeek(BUF) (BUF)->elems[(BUF)->end]
-#define bufferWriteInc(BUF) \
+#define bufferWriteSkip(BUF) \
   (BUF)->end = nextEndIndex(BUF); \
   if (isBufferEmpty(BUF)) { \
     (BUF)->start = nextStartIndex(BUF); \
   }
 
 #define bufferReadPeek(BUF) (BUF)->elems[(BUF)->start]
-#define bufferReadInc(BUF) \
+#define bufferReadSkip(BUF) \
   (BUF)->start = nextStartIndex(BUF);
   
 #define bufferWrite(BUF, ELEM) \
   bufferWritePeek(BUF) = ELEM; \
-  bufferWriteInc(BUF)
+  bufferWriteSkip(BUF)
 
 #define bufferRead(BUF, ELEM) \
   ELEM = bufferReadPeek(BUF); \
-  bufferReadInc(BUF)
+  bufferReadSkip(BUF)
   
 #endif
