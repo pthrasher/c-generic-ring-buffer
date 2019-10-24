@@ -7,6 +7,10 @@ are really fast, and they work great. If you don't like them, don't use them.
 I use them because it's the only DRY and sane way to add generic ring buffers
 to your C application.
 
+For limited resources systems such as microcontrollers there is
+RINGBUFFER_USE_STATIC_MEMORY and RINGBUFFER_AVOID_MODULO defines.
+
+
 Example usage:
 
 ```c
@@ -47,9 +51,13 @@ int main() {
   bufferRead(myBuffer_ptr,first);
   assert(first == 37); // true
 
-  int second;
-  bufferRead(myBuffer_ptr,second);
-  assert(second == 72); // true
+  // Get reference of the current element to avoid copies
+  int* second_ptr = &bufferReadPeek(myBuffer_ptr);
+  assert(*second_ptr == 72); // true
+  operate_on_reference(second_prt);
+ 
+  // move to next value
+  bufferReadSkip(myBuffer_ptr);
 
   return 0;
 }

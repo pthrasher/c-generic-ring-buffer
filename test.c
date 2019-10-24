@@ -67,10 +67,8 @@ void passByReference(intBuffer* myBuffer_ptr) {
   
   bufferReadSkip(myBuffer_ptr);
 
-  int fourth;
-  bufferRead(myBuffer_ptr,fourth);
-  assert(fourth == 44);
-
+  int* fourth_ptr = &bufferReadPeek(myBuffer_ptr);
+  assert(*fourth_ptr == 44);
 }
 
 int main() {
