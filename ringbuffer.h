@@ -56,9 +56,13 @@
  *   bufferRead(myBuffer_ptr,first);
  *   assert(first == 37); // true
  *
- *   int second;
- *   bufferRead(myBuffer_ptr,second);
- *   assert(second == 72); // true
+ *   // Get reference of the current element to avoid copies
+ *   int* second_ptr = &bufferReadPeek(myBuffer_ptr);
+ *   assert(*second_ptr == 72); // true
+ *   operate_on_reference(second_prt);
+ * 
+ *   // move to next value
+ *   bufferReadSkip(myBuffer_ptr);
  *
  *   return 0;
  * }
@@ -68,6 +72,20 @@
 #ifndef _ringbuffer_h
 #define _ringbuffer_h
 
+/* Setting RINGBUFFER_USE_STATIC_MEMORY to 1 will use a static memory area
+ * allocated for the ringbuffer instead of a dynamic one, useful if there is no
+ * dynamic allocation or the buffer will always be around anyways. There is no
+ * bufferDestroy() in this case */
+#ifndef RINGBUFFER_USE_STATIC_MEMORY
+#define RINGBUFFER_USE_STATIC_MEMORY 0
+#endif
+
+/* Setting RINGBUFFER_AVOID_MODULO to 1 will replace the modulo operations with
+ * comparisons, useful if there is no hardware divide operations */
+#ifndef RINGBUFFER_AVOID_MODULO
+#define RINGBUFFER_AVOID_MODULO 0
+#endif
+
 #define ringBuffer_typedef(T, NAME) \
   typedef struct { \
     int size; \
@@ -75,29 +93,68 @@
     int end; \
     T* elems; \
   } NAME
+  
 
+/* To allow for S elements to be stored we allocate space for (S + 1) elements,
+ * otherwise a full buffer would be indistinguishable from an empty buffer.
+ * 
+ * Also as the elements will be accessed like an array it makes sense to pad
+ * the type of the elements to the platform wordsize, otherwise you will end up
+ * with unaligned accesses. */
+#if RINGBUFFER_USE_STATIC_MEMORY == 1
+#define bufferInit(BUF, S, T) \
+  { \
+    static T StaticBufMemory[S + 1];\
+    BUF.elems = StaticBufMemory; \
+  } \
+    BUF.size = S; \
+    BUF.start = 0; \
+    BUF.end = 0;
+#else
+  
 #define bufferInit(BUF, S, T) \
   BUF.size = S; \
   BUF.start = 0; \
   BUF.end = 0; \
-  BUF.elems = (T*)calloc(BUF.size, sizeof(T))
+  BUF.elems = (T*)calloc(BUF.size + 1, sizeof(T))
 
+#define bufferDestroy(BUF) free((BUF)->elems)
 
-#define bufferDestroy(BUF) free(BUF->elems)
-#define nextStartIndex(BUF) ((BUF->start + 1) % (BUF->size + 1))
-#define nextEndIndex(BUF) ((BUF->end + 1) % (BUF->size + 1))
-#define isBufferEmpty(BUF) (BUF->end == BUF->start)
-#define isBufferFull(BUF) (nextEndIndex(BUF) == BUF->start)
+#endif
 
-#define bufferWrite(BUF, ELEM) \
-  BUF->elems[BUF->end] = ELEM; \
-  BUF->end = (BUF->end + 1) % (BUF->size + 1); \
+  
+#if RINGBUFFER_AVOID_MODULO == 1
+  
+#define nextStartIndex(BUF) (((BUF)->start != (BUF)->size) ? ((BUF)->start + 1) : 0)
+#define nextEndIndex(BUF) (((BUF)->end != (BUF)->size) ? ((BUF)->end + 1) : 0)
+  
+#else
+  
+#define nextStartIndex(BUF) (((BUF)->start + 1) % ((BUF)->size + 1))
+#define nextEndIndex(BUF) (((BUF)->end + 1) % ((BUF)->size + 1))
+  
+#endif
+
+#define isBufferEmpty(BUF) ((BUF)->end == (BUF)->start)
+#define isBufferFull(BUF) (nextEndIndex(BUF) == (BUF)->start)
+
+#define bufferWritePeek(BUF) (BUF)->elems[(BUF)->end]
+#define bufferWriteSkip(BUF) \
+  (BUF)->end = nextEndIndex(BUF); \
   if (isBufferEmpty(BUF)) { \
-    BUF->start = nextStartIndex(BUF); \
+    (BUF)->start = nextStartIndex(BUF); \
   }
 
-#define bufferRead(BUF, ELEM) \
-    ELEM = BUF->elems[BUF->start]; \
-    BUF->start = nextStartIndex(BUF);
+#define bufferReadPeek(BUF) (BUF)->elems[(BUF)->start]
+#define bufferReadSkip(BUF) \
+  (BUF)->start = nextStartIndex(BUF);
 
+#define bufferWrite(BUF, ELEM) \
+  bufferWritePeek(BUF) = ELEM; \
+  bufferWriteSkip(BUF)
+
+#define bufferRead(BUF, ELEM) \
+  ELEM = bufferReadPeek(BUF); \
+  bufferReadSkip(BUF)
+  
 #endif
