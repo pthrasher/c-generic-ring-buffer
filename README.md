@@ -1,5 +1,5 @@
-Philip Thrasher's Crazy Awesome Ring Buffer Macros!
-===================================================
+Super Simple Ring Buffer Macros
+===============================
 
 In ringbuffer.h are some naughty macros for easily owning and manipulating
 generic ring buffers. Yes, they are slightly evil in readability, but they
