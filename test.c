@@ -101,6 +101,35 @@ void testPeek(void) {
   assert(testValue == 105);
 }
 
+void testPeekWithWrap(void) {
+  intBuffer peekBuffer;
+  bufferInit(peekBuffer,4,int);
+  // write three values to ring:
+  bufferWrite(&peekBuffer, 100);
+  bufferWrite(&peekBuffer, 101);
+  bufferWrite(&peekBuffer, 102);
+  // read two values, so that we have space to for writes that wrap around:
+  int valueRead = 0xff;
+  bufferRead(&peekBuffer, valueRead);
+  assert(valueRead == 100);
+  bufferRead(&peekBuffer, valueRead);
+  assert(valueRead == 101);
+  // Write three more values, 104 wraps around:
+  bufferWrite(&peekBuffer, 103);
+  bufferWrite(&peekBuffer, 104);
+  bufferWrite(&peekBuffer, 105);
+  // Read the two remaining values before the wrap around:
+  bufferPeekForward(&peekBuffer, 0, valueRead);
+  assert(valueRead == 102);
+  bufferPeekForward(&peekBuffer, 1, valueRead);
+  assert(valueRead == 103);
+  // This two peeks will need to wrap around:
+  bufferPeekForward(&peekBuffer, 2, valueRead);
+  assert(valueRead == 104);
+  bufferPeekForward(&peekBuffer, 3, valueRead);
+  assert(valueRead == 105);
+}
+
 void testReset(void) {
   intBuffer resetBuffer;
   bufferInit(resetBuffer,16,int);
@@ -145,6 +174,7 @@ int main() {
 
   passByReference(&myBuffer);
   testPeek();
+  testPeekWithWrap();
   testReset();
 
   printf("All tests passed.\n");
