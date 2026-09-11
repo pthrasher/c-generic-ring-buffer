@@ -153,7 +153,7 @@
   
 #endif
 
-#define nextIndex(BUF, IX)     ({ ((IX != ((BUF)->size - 1)) ? (IX + 1) : 0); });
+#define nextIndex(BUF, IX)     ({ ((IX != (BUF)->size) ? (IX + 1) : 0); });
 #define previousIndex(BUF, IX) ({ ((IX != 0) ? (IX - 1) : ((BUF)->size)); });
 
 #define isBufferEmpty(BUF) ((BUF)->end == (BUF)->start)
